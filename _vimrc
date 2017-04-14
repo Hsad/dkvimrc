@@ -35,7 +35,7 @@ set so=7
 set smartcase
 
 "the golden child.  jk to exit insert mode
-inoremap jk <Esc> 
+inoremap jk <Esc>
 "quick {} auto indents and magic
 inoremap {} {<Enter>}<Esc>ko 
 
