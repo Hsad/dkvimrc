@@ -9,17 +9,21 @@ filetype plugin on
 " syntax is on
 syntax on
 
-set lines=30 columns=86 "+5 for the line numbering space and foldcolumn
+
+if has('gui_running')
+	colorscheme slate "slate for gvim
+	set lines=30 columns=86 "+5 for the line numbering space and foldcolumn
+else
+	colorscheme pablo "pablo for termvim
+	if hostname() == "raspberrypi"
+		colorscheme industry
+	endif
+endif
 
 set diffexpr=MyDiff()
 set tabstop=4
 set shiftwidth=4
 set autoindent
-if has('gui_running')
-	colorscheme slate "slate for gvim
-else
-	colorscheme pablo "pablo for termvim
-endif
 set number
 set showcmd
 set history=700
