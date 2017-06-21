@@ -106,6 +106,10 @@ elseif hostname() == "DASHLAP-PC"
   set dir=C:/Users/DashLap/Dropbox/Text/Swap
 elseif hostname() == "MADEINSPACE-030"
   set dir=C:/Users/dash/vimfiles
+  set undodir=C:/Users/dash/vimfiles/undo
+elseif hostname() == "MADEINSPACE-M33"
+  set dir=C:/Users/dash/vimfiles
+  set undodir=C:/Users/dash/vimfiles/undo
 endif
 
 "Use TAB to complete when typing words, else inserts TABs as usual.
@@ -131,29 +135,3 @@ if version >= 700
    set nospell
 endif
 " map <leader>ss :setlocal spell!<cr> , not ready for this yet
-
-
-function MyDiff()
-  let opt = '-a --binary '
-  if &diffopt =~ 'icase' | let opt = opt . '-i ' | endif
-  if &diffopt =~ 'iwhite' | let opt = opt . '-b ' | endif
-  let arg1 = v:fname_in
-  if arg1 =~ ' ' | let arg1 = '"' . arg1 . '"' | endif
-  let arg2 = v:fname_new
-  if arg2 =~ ' ' | let arg2 = '"' . arg2 . '"' | endif
-  let arg3 = v:fname_out
-  if arg3 =~ ' ' | let arg3 = '"' . arg3 . '"' | endif
-  let eq = ''
-  if $VIMRUNTIME =~ ' '
-    if &sh =~ '\<cmd'
-      let cmd = '""' . $VIMRUNTIME . '\diff"'
-      let eq = '"'
-    else
-      let cmd = substitute($VIMRUNTIME, ' ', '" ', '') . '\diff"'
-    endif
-  else
-    let cmd = $VIMRUNTIME . '\diff'
-  endif
-  silent execute '!' . cmd . ' ' . opt . arg1 . ' ' . arg2 . ' > ' . arg3 . eq
-endfunction
-
