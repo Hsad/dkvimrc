@@ -96,6 +96,10 @@ noremap <Right> <NOP>
 vnoremap p "_dp
 vnoremap P "_dP
 
+" python debugging
+nnoremap <leader>d o<cr>import ptpdb<esc>optpdb.set_trace()<esc>o<esc>kk
+
+
 "Stops backup files from cluttering Directories
 set nobackup
 "puts backups in an isolated directory
