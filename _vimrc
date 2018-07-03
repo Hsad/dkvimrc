@@ -8,10 +8,22 @@ source $VIMRUNTIME/vimrc_example.vim
 filetype plugin on
 " syntax is on
 syntax on
+execute pathogen#infect()
+" Arduino Crap, probably want to protect it inside an if statement
+" my_file.ino [arduino:avr:uno] [arduino:usbtinyisp] (/dev/ttyACM0:9600)
+function! MyStatusLine()
+  let port = arduino#GetPort()
+  let line = '%f [' . g:arduino_board . '] [' . g:arduino_programmer . ']'
+  if !empty(port)
+    let line = line . ' (' . port . ':' . g:arduino_serial_baud . ')'
+  endif
+  return line
+endfunction
+setl statusline=%!MyStatusLine()
 
 
 if has('gui_running')
-	colorscheme slate "slate for gvim
+	colorscheme coop "coop for gvim
 	set lines=30 columns=86 "+5 for the line numbering space and foldcolumn
 else
 	colorscheme pablo "pablo for termvim
@@ -20,7 +32,7 @@ else
 	endif
 endif
 
-set diffexpr=MyDiff()
+"set diffexpr=MyDiff() I don't have a MyDiff function anymore
 set tabstop=4
 set shiftwidth=4
 set autoindent
@@ -42,6 +54,10 @@ set smartcase
 inoremap jk <Esc>
 "quick {} auto indents and magic
 inoremap {} {<Enter>}<Esc>ko 
+inoremap }{ {}
+
+"If this works it may very well be the greatest thing since sliced bread
+inoremap <S-Space> _
 
 "TAKE ME TO YOUR LEADER
 map <space> <leader>
@@ -66,9 +82,11 @@ set foldmethod=indent
 "turn on foldcolumn so shit makes sense
 set foldcolumn=1
 
-autocmd BufWinLeave *.* mkview
+"So this is to save where folds are, but Im using auto fold, so it shouldnt
+"matter, at least I hope so
+"autocmd BufWinLeave *.* mkview
 "autocmd BufWinLeave * mkview "there seems to be confilicting instructions
-autocmd BufWinEnter *.* silent loadview 
+"autocmd BufWinEnter *.* silent loadview 
 "autocmd BufWinEnter * silent loadview "floating around out on the web
 
 "make enter, in normal mode, add a new line below.  Uses h as a mark
@@ -97,8 +115,19 @@ vnoremap p "_dp
 vnoremap P "_dP
 
 " python debugging
-nnoremap <leader>d o<cr>import ptpdb<esc>optpdb.set_trace()<esc>o<esc>kk
+nnoremap <leader>d o<cr>import ipdb<esc>oipdb.set_trace()<esc>o<esc>kk
 
+" vimgrep next
+" could have much greater control, where the ## args are populated,
+" and where the last searched value is automatically tracked and used
+" in a vimgrep // ##   
+" This is good for now, dont want to dive into vim functions
+nnoremap <C-n> :cn<cr>
+nnoremap <M-n> :cp<cr>
+nnoremap <leader>* *:vimgrep // ##<cr>
+
+" Stop highlighting and undo from lowercasing everything
+vnoremap u v
 
 "Stops backup files from cluttering Directories
 set nobackup
@@ -139,3 +168,19 @@ if version >= 700
    set nospell
 endif
 " map <leader>ss :setlocal spell!<cr> , not ready for this yet
+
+
+" Preserve(): preserve cursor position while performing command {{{1
+function! Preserve(command)
+    let _s=@/
+    let l = line(".")
+    let c = col(".")
+    " Do the business:
+    execute a:command
+    " Clean up: restore previous search history, and cursor position
+    let @/=_s
+    call cursor(l, c)
+endfunction
+
+" strip trailing whitespace off of select filetypes when writing to file
+autocmd BufWritePre *.m,*.sh,*.py,*.js,*.txt,*.f90,*.f :call Preserve("%s/\\s\\+$//e")
